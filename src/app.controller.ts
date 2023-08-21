@@ -9,8 +9,11 @@ type ParamType = { username: string };
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
-
   
+  getHello(): string {
+    return "Hello World!";
+  }  
+
   @Post('sign-up')
   @HttpCode(200)
   createUser(@Body(new ValidationPipe()) body: CreateUserDto) {

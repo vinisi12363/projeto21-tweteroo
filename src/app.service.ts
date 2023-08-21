@@ -1,15 +1,15 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { CreateUserDto } from './DTO/user.dto';
 import { CreateTweetDto } from './DTO/tweet.dto';
-import { User } from './classes/user.class';
-import { Tweet } from './classes/tweet.class';
+import { User } from './Classes/users/user.class';
+import { Tweet } from './Classes/tweet/tweet.class';
 
 
 @Injectable()
 export class AppService {
   private  tweets: Tweet[] = []  
   private users: User[]  = [] 
-  
+
   findByUsername (username:string){
     return new Promise<User>((resolve) => {
       const result=this.users.find((user) => user.username === username)
@@ -72,7 +72,7 @@ export class AppService {
       resolve(lastTweets);
     });
   }
-
+ //listUserTweets
   async listUserTweets(name: string) {
     return new Promise((resolve) => {
       const selectedTweets = this.tweets.filter(
