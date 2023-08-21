@@ -1,4 +1,15 @@
-import { Controller, Query, Get, Post, HttpCode, HttpStatus,  HttpException, Body, Param, ValidationPipe } from '@nestjs/common';
+import {
+  Controller,
+  Query,
+  Get,
+  Post,
+  HttpCode,
+  HttpStatus,
+  HttpException,
+  Body,
+  Param,
+  ValidationPipe,
+} from '@nestjs/common';
 import { AppService } from './app.service';
 import { CreateUserDto } from './DTO/user.dto';
 import { CreateTweetDto } from './DTO/tweet.dto';
@@ -9,10 +20,10 @@ type ParamType = { username: string };
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
-  
+
   getHello(): string {
-    return "Hello World!";
-  }  
+    return 'Hello World!';
+  }
 
   @Post('sign-up')
   @HttpCode(200)
@@ -51,4 +62,3 @@ export class AppController {
     return this.appService.listUserTweets(username);
   }
 }
-

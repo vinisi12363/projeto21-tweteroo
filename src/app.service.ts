@@ -4,57 +4,51 @@ import { CreateTweetDto } from './DTO/tweet.dto';
 import { User } from './Classes/users/user.class';
 import { Tweet } from './Classes/tweet/tweet.class';
 
-
 @Injectable()
 export class AppService {
-  private  tweets: Tweet[] = []  
-  private users: User[]  = [] 
+  private tweets: Tweet[] = [];
+  private users: User[] = [];
 
-  findByUsername (username:string){
+  findByUsername(username: string) {
     return new Promise<User>((resolve) => {
-      const result=this.users.find((user) => user.username === username)
+      const result = this.users.find((user) => user.username === username);
       resolve(result);
     });
   }
 
   //createUser
-  async createUser(body:CreateUserDto){
-    const {username, avatar} = body;
-    const id = this.users.length+1;
+  async createUser(body: CreateUserDto) {
+    const { username, avatar } = body;
+    const id = this.users.length + 1;
 
     const userAlreadyExist = this.findByUsername(username);
-    if (userAlreadyExist){
+    if (userAlreadyExist) {
       throw new HttpException(
         'this username already in use',
         HttpStatus.CONFLICT,
       );
     }
 
-    return new Promise<User>(()=>{
+    return new Promise<User>(() => {
       this.users.push(new User(id, username, avatar));
     });
-
   }
 
   //createTweet
-  async createTweet(body:CreateTweetDto){
-      const {username , tweet} = body;
-      const id = this.tweets.length+1;
-      const userAlreadyExist = this.findByUsername(username);
-      if (!userAlreadyExist){
-        throw new HttpException(
-          'User not authorized',
-          HttpStatus.UNAUTHORIZED,
-        );
-      }
+  async createTweet(body: CreateTweetDto) {
+    const { username, tweet } = body;
+    const id = this.tweets.length + 1;
+    const userAlreadyExist = this.findByUsername(username);
+    if (!userAlreadyExist) {
+      throw new HttpException('User not authorized', HttpStatus.UNAUTHORIZED);
+    }
 
-      return new Promise<Tweet>(()=>{
-        this.tweets.push(new Tweet(id, username, tweet));
-      });
-
+    return new Promise<Tweet>(() => {
+      this.tweets.push(new Tweet(id, username, tweet));
+    });
   }
   // listTweets
-  
+
   async listTweets(MIN: number, MAX: number) {
     return new Promise((resolve) => {
       const tweetsList = [...this.tweets].reverse().slice(MIN, MAX);
@@ -72,7 +66,7 @@ export class AppService {
       resolve(lastTweets);
     });
   }
- //listUserTweets
+  //listUserTweets
   async listUserTweets(name: string) {
     return new Promise((resolve) => {
       const selectedTweets = this.tweets.filter(
@@ -91,8 +85,4 @@ export class AppService {
       resolve(userTweets);
     });
   }
-
-
-
-
 }

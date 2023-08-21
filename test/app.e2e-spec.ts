@@ -4,7 +4,6 @@ import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
 import { signUp } from './factory/user';
 import { tweetByUser } from './factory/tweet';
-import { sign } from 'crypto';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
