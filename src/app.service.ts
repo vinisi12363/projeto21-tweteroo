@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpStatus, HttpException } from '@nestjs/common';
 import { CreateUserDto } from './DTO/user.dto';
 import { CreateTweetDto } from './DTO/tweet.dto';
 import { User } from './Classes/users/user.class';
@@ -9,64 +9,37 @@ export class AppService {
   private tweets: Tweet[] = [];
   private users: User[] = [];
 
-  findByUsername(username: string) {
-    return new Promise<User>((resolve) => {
-      const result = this.users.find((user) => user.username === username);
-      resolve(result);
-    });
+  async findByUsername(username: string): Promise<User | null> {
+    return this.users.find((user) => user.username === username) || null;
   }
 
-  //createUser
-  async createUser(body: CreateUserDto) {
+  async createUser(body: CreateUserDto): Promise<User> {
     const { username, avatar } = body;
-    const id = this.users.length + 1;
-
-    const userAlreadyExist = this.findByUsername(username);
+    
+    const userAlreadyExist = await this.findByUsername(username);
     if (userAlreadyExist) {
-      throw new HttpException(
-        'this username already in use',
-        HttpStatus.CONFLICT,
-      );
+      throw new HttpException('This username is already in use', HttpStatus.CONFLICT);
     }
 
-    return new Promise<User>(() => {
-      this.users.push(new User(id, username, avatar));
-    });
+    const id = this.users.length + 1;
+    const newUser = new User(id, username, avatar);
+    this.users.push(newUser);
+    return newUser;
   }
 
-  //createTweet
-  async createTweet(body: CreateTweetDto) {
+  async createTweet(body: CreateTweetDto): Promise<Tweet> {
     const { username, tweet } = body;
-    const id = this.tweets.length + 1;
-    const userAlreadyExist = this.findByUsername(username);
-    if (!userAlreadyExist) {
+
+    const user = await this.findByUsername(username);
+    if (!user) {
       throw new HttpException('User not authorized', HttpStatus.UNAUTHORIZED);
     }
 
-    return new Promise<Tweet>(() => {
-      this.tweets.push(new Tweet(id, username, tweet));
-    });
+    const id = this.tweets.length + 1;
+    const newTweet = new Tweet(id, username, tweet);
+    this.tweets.push(newTweet);
+    return newTweet;
   }
-  // listTweets
-
-  async listTweets(MIN: number, MAX: number) {
-    return new Promise((resolve) => {
-      const tweetsList = [...this.tweets].reverse().slice(MIN, MAX);
-      const lastTweets = tweetsList.map((anyTweet) => {
-        const selectedUser = this.users.find(
-          (user) => user.username === anyTweet.username,
-        );
-        return {
-          avatar: selectedUser.avatar,
-          username: selectedUser.username,
-          tweet: anyTweet.tweet,
-        };
-      });
-
-      resolve(lastTweets);
-    });
-  }
-  //listUserTweets
   async listUserTweets(name: string) {
     return new Promise((resolve) => {
       const selectedTweets = this.tweets.filter(
@@ -84,5 +57,44 @@ export class AppService {
       });
       resolve(userTweets);
     });
+  }
+
+  async listTweets(page:number): Promise<any[]> {
+    if(page < 1) 
+      throw new HttpException('invalid page number', HttpStatus.BAD_REQUEST);
+    if(!page){
+      
+      const lastTweets = this.tweets
+      .slice(this.tweets.length - 15 , this.tweets.length)
+      .map((t) => {
+        const user = this.users.find((user)=> user.username === t.username)
+        return {
+          username: t.username,
+          avatar: user  ? user.avatar : '',
+          tweet: t.tweet
+        }
+      })
+      return lastTweets;
+    }else {
+      const tweetsInPage=15;
+      const initialIndex = (page-1) * tweetsInPage;
+      const endIndex = initialIndex + tweetsInPage;
+
+      
+      const arrayOfTweets = this.tweets
+      .slice(initialIndex , endIndex)
+      .map((t) => {
+        const user = this.users.find((user)=> user.username === t.username)
+        return {
+          username: t.username,
+          avatar: user  ? user.avatar : '',
+          tweet: t.tweet
+        }
+      })
+      return arrayOfTweets;
+
+
+    }
+    
   }
 }

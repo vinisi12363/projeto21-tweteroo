@@ -1,11 +1,11 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateTweetDto {
-  @IsNotEmpty({ message: 'The field is required!' })
-  @IsString({ message: 'The field is required!' })
+  @IsNotEmpty({ message: 'All filed are required!' })
+  @IsString()
   username: string;
 
-  @IsNotEmpty({ message: 'The field is required!' })
-  @IsString({ message: 'The field is required!' })
+  @IsNotEmpty({ message: 'All filed are required!' })
+  @IsString()
   tweet: string;
 }
